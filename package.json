@@ -20,8 +20,8 @@
   },
   "homepage": "https://github.com/wbenxin/card-query#readme",
   "dependencies": {
+    "@log4js-node/log4js-api": "^1.0.2",
     "iconv-lite": "^0.5.1",
-    "log4js": "^6.1.2",
     "mysql2": "^2.1.0",
     "oracledb": "^4.2.0",
     "uuid": "^7.0.2"
