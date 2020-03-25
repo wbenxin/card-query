@@ -1,0 +1,32 @@
+{
+  "name": "card-query",
+  "version": "1.0.0",
+  "description": "基于卡片元数据模型的数据查询方案",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --exit",
+    "postversion": "npm publish",
+    "postpublish": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wbenxin/card-query.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wbenxin/card-query/issues"
+  },
+  "homepage": "https://github.com/wbenxin/card-query#readme",
+  "dependencies": {
+    "iconv-lite": "^0.5.1",
+    "log4js": "^6.1.2",
+    "mysql2": "^2.1.0",
+    "oracledb": "^4.2.0",
+    "uuid": "^7.0.2"
+  },
+  "devDependencies": {
+    "mocha": "^7.1.1"
+  }
+}
