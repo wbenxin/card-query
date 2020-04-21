@@ -193,6 +193,9 @@ const app = new App();
 app.use(query.middleware());
 
 app.use(async (ctx, next) => {
+  // 执行SQL
+  let d = await ctx.db('conn_name').execute('select * from user where id=?', [123]);
+
   // 调用cardr接口获取卡片的数据
   let data = await ctx.db.cardr('some card', [], 'some id');
   // 输出到浏览器
