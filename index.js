@@ -15,7 +15,9 @@ const api = Object.assign({}, database, card, tree);
 
 api.middleware = function () {
   return async (ctx, next) => {
-    ctx.db = api;
+    ctx.db = Object.assign(function (name) {
+      return api.getDatabase(name);
+    }, api);
     await next();
   };
 };
