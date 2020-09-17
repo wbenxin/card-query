@@ -1,6 +1,6 @@
 {
   "name": "card-query",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "基于卡片元数据模型的数据查询方案",
   "main": "index.js",
   "scripts": {
