@@ -9,17 +9,15 @@
  */
 const card = require('./lib/card');
 const tree = require('./lib/tree');
-const database = require('./lib/database');
+const { configure, getDatabase } = require('./lib/database');
 
-const api = Object.assign({}, database, card, tree);
-
-api.middleware = function () {
-  return async (ctx, next) => {
-    ctx.db = Object.assign(function (name) {
-      return api.getDatabase(name);
-    }, api);
+module.exports = {
+  configure,
+  getDatabase,
+  middleware: () => (async (ctx, next) => {
+    ctx.db = Object.assign(getDatabase, card, tree);
     await next();
-  };
+  }),
+  ...card,
+  ...tree,
 };
-
-module.exports = api;
