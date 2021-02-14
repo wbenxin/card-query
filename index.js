@@ -5,6 +5,8 @@
  * * cardr: async function - 基于卡片模型查询数据
  * * cardw: async function - 基于卡片模型保存数据
  * * cardd: async function - 基于卡片模型删除数据
+ * * treer: async function - 基于卡片模型查询树数据
+ * * treed: async function - 基于卡片模型删除树数据
  * * middleware: function - koa中间件, 为ctx增加db属性
  */
 const card = require('./lib/card');

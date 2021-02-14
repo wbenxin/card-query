@@ -10,22 +10,25 @@ npm i card-query
 ```
 const query = require('card-query');
 
-// 以下放到async函数中
-await query.configure(config);
-let data = await query.cardr('卡片名称', [], 'ID');
+query.configure(config);
+
+async function test() {
+  let data = await query.cardr('卡片名称', ['名称', '编码'], { filter, order });
+}
 ```
 
 ## 功能列表
-* [async configure(config)](#configure)
+* [configure(config)](#configure)
 * [getDatabase(name)](#getDatabase)
+* [middleware()](#middleware)
 * [async cardr(name, model, options)](#cardr)
 * [async cardw(name, model, records)](#cardw)
 * [async cardd(name, ids)](#cardd)
-* [middleware()](#middleware)
+* [async treer(name, model, parent, options)](#treer)
+* [async treed(name, ids)](#treed)
 
-## <a name="configure">async configure(config)</a>
+## <a id="configure">configure(config)</a>
 配置数据库连接参数. 支持Oracle和Mysql两种数据库.
-该函数是异步的, 返回一个Promise对象.
 
 ### @ config参数
 ```
@@ -44,14 +47,11 @@ let data = await query.cardr('卡片名称', [], 'ID');
 
 更多配置项请参考[oracledb](https://oracle.github.io/node-oracledb/doc/api.html)或[mysql2](https://github.com/sidorares/node-mysql2/blob/master/README.md)
 
-### @ 返回值
-`Promise<null>`
-
-## <a name="getDatabase">getDatabase(name)</a>
+## <a id="getDatabase">getDatabase(name)</a>
 获取指定名称的数据库连接对象
 
 ### @ name参数
-对应出现在config中的name
+对应出现在config中的key值
 
 ### @ 返回值
 根据连接的数据库类型, 可能为Oracle或者Mysql对象的实例. 两者都具有如下属性:
@@ -82,7 +82,34 @@ let data = await query.cardr('卡片名称', [], 'ID');
     * affected: 影响的行数
     * insertId: 插入的ID. 如果是自增ID, 可以从这里拿到插入后生成的ID
 
-## <a name="cardr">async cardr(name, model, options)</a>
+## <a id="middleware">middleware()</a>
+提供koa中间件支持. 调用后会返回一个koa中间件, 用来为ctx对象增加db属性. 可以通过db属性访问所有的功能.
+
+```
+const App = require('koa');
+const query = require('card-query');
+
+// 初始化数据库连接配置
+query.configure(config);
+
+const app = new App();
+// 引入中间件
+app.use(query.middleware());
+
+app.use(async (ctx, next) => {
+  // 执行SQL
+  let d = await ctx.db('conn_name').execute('select * from user where id=?', [123]);
+
+  // 调用cardr接口获取卡片的数据
+  let data = await ctx.db.cardr('some card', [], 'some id');
+  // 输出到浏览器
+  ctx.body = JSON.stringify(data);
+});
+
+app.listen(3000);
+```
+
+## <a id="cardr">async cardr(name, model, options)</a>
 提供基于卡片的数据查询功能
 
 ### @ name参数: string
@@ -144,7 +171,7 @@ BETWEEN, NOT BETWEEN
 ### @ 返回值
 数组类型, 查询到的所有记录
 
-## <a name="cardw">async cardw(name, model, records)</a>
+## <a id="cardw">async cardw(name, model, records)</a>
 提供基于卡片的数据保存功能
 
 ### @ name参数
@@ -162,7 +189,7 @@ BETWEEN, NOT BETWEEN
 返回经过修改的records参数:
 > 如果记录没有指定ID, 则自动在插入数据库时生成新的ID并更新到记录上
 
-## <a name="cardd">async cardd(name, ids)</a>
+## <a id="cardd">async cardd(name, ids)</a>
 提供基于卡片的数据删除功能
 
 ### @ name参数
@@ -178,29 +205,17 @@ BETWEEN, NOT BETWEEN
 
 删除成功了的ID数组
 
-## <a name="middleware">middleware()</a>
-提供koa中间件支持. 调用后会返回一个koa中间件, 用来为ctx对象增加db属性. 可以通过db属性访问所有的功能.
+## <a id="treer">async treer(name, model, parent, options)</a>
 
-```
-const App = require('koa');
-const query = require('card-query');
+基于cardr的结果集, 根据praent参数指定的上级字段名, 将结果集重组为children树的形式.
 
-// 初始化数据库连接配置
-query.configure(config);
+默认情况下, 上级记录不在cardr结果集中的记录都将作为树的顶级节点. 这在某些情况下这可能有问题, 可以通过指定options.root参数, 来指定成为顶级记录的必要条件.
 
-const app = new App();
-// 引入中间件
-app.use(query.middleware());
 
-app.use(async (ctx, next) => {
-  // 执行SQL
-  let d = await ctx.db('conn_name').execute('select * from user where id=?', [123]);
+## <a id="treed">async treed(name, ids)</a>
 
-  // 调用cardr接口获取卡片的数据
-  let data = await ctx.db.cardr('some card', [], 'some id');
-  // 输出到浏览器
-  ctx.body = JSON.stringify(data);
-});
+提供基于卡片的数据树删除功能
 
-app.listen(3000);
-```
+参数与返回值都与cardd兼容.
+
+相比cardd, treed可以自动删除ids对应记录的所有子记录.
